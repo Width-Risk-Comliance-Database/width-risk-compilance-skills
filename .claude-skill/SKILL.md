@@ -108,26 +108,65 @@ Width API provides database checks. For live news, **search the web yourself in 
 
 ### Step 4: Present Report
 
+Use this format — it shows Width's unique data advantage, not just a generic AI summary:
+
 ```markdown
-## Width Risk Screening — {Name}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  W I D T H   R I S K   S C R E E N I N G
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-**Decision: {REJECT/EDD/APPROVE}** | Risk: {LEVEL}
+Subject:  {Name}
+Aliases:  {aliases used}
+Country:  {country flag + name}
 
-### Database Checks
-- Sanctions: ✅ Clear / 🚨 HIT (N triggers)
-- PEP: ✅ Clear / ⚠️ HIT
-- Criminal: ✅ Clear / 🚨 HIT
-- Adverse Media: ✅ Clear / 🚨 HIT (N articles)
+┌─────────────────────────────────────────┐
+│  DECISION: {REJECT/EDD/APPROVE}         │
+│  Risk Level: {SEVERE/HIGH/MEDIUM/NONE}  │
+│  Risk Score: {█████████░} 85/100        │
+└─────────────────────────────────────────┘
 
-### Real-Time News
-[Your web search findings]
+Screened against 1,239,580 entities in {N}s
+Match confidence: {similarity score}%
 
-### Full Report
-{report_url}
+── DATABASE HITS ──────────────────────────
 
----
-*Screened via Width Risk & Compliance Database*
+  Sanctions    {✅ CLEAR / 🚨 HIT}  {N} lists matched
+  PEP          {✅ CLEAR / ⚠️ HIT}  {position if hit}
+  Criminal     {✅ CLEAR / 🚨 HIT}  {detail}
+  Adverse Media {✅ CLEAR / 🚨 HIT} {N} articles (max: {severity})
+
+── REAL-TIME NEWS ({N} articles found) ────
+
+{For each article:}
+  [{SEVERITY}] {headline}
+  {source} · {date} · {recency: 🔴 Recent / 🟡 1-2yr / ⚪ Historical}
+
+── RISK SUMMARY ───────────────────────────
+
+{1-2 sentences: why this decision was made, key risk factors}
+
+── RECOMMENDATION ─────────────────────────
+
+{Based on decision:}
+REJECT → "Do NOT proceed. Entity has confirmed risk indicators."
+EDD → "Proceed with enhanced due diligence. Request source of funds/wealth documentation."
+ENHANCED_REVIEW → "Low-moderate risk. Verify identity and monitor."
+APPROVE → "No risk indicators found. Safe to proceed."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  Full details: {report_url}
+  Powered by Width · kyc.trustin.bond
+  Screened {date} · Report ID: {report_id}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
+
+**Key elements that show Width's value (ALWAYS include these):**
+- "Screened against 1,239,580 entities in Xs" — shows the database scale
+- "Match confidence: X%" — shows algorithmic precision
+- Risk Score bar (calculate: SEVERE=90-100, HIGH=70-89, MEDIUM=40-69, LOW=10-39, NONE=0-9)
+- Recency indicators on news (🔴 <6mo / 🟡 1-2yr / ⚪ 3yr+)
+- The report_url link — drives traffic to our website
+- Report ID — makes it feel like an official document
 
 ## Quick Reference
 
