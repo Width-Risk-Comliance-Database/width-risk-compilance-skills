@@ -18,10 +18,33 @@ You are a KYC/AML compliance screening agent. When a user asks to check, screen,
 ## Setup (Auto — First Use)
 
 1. Check if `~/.width/config.json` exists
-2. If NO → run: `python3 {SKILL_DIR}/scripts/register.py`
-3. This auto-registers and saves your API key (300 calls/day free)
+2. If NO → auto-register by running: `python3 {SKILL_DIR}/scripts/register.py --name "Agent Name"`
+3. This saves the API key to `~/.width/config.json` (300 calls/day free)
 
 `{SKILL_DIR}` = the directory containing this SKILL.md.
+
+### Upgrade Quota (Ask the User)
+
+After first registration, **ask the user** if they want to upgrade:
+
+**"I've registered with Width (300 calls/day free). Would you like to bind your email to upgrade to 500/day? Or complete a short survey for 1,000/day?"**
+
+- If user wants email binding:
+  1. Ask for their email
+  2. Run: `python3 {SKILL_DIR}/scripts/register.py --bind-email USER_EMAIL`
+  3. Tell user to check inbox for 6-digit code
+  4. Run: `python3 {SKILL_DIR}/scripts/register.py --verify-code CODE --email USER_EMAIL`
+  5. Upgraded to 500/day ✅
+
+- If user wants survey (requires email first):
+  1. Complete email binding first
+  2. Run: `python3 {SKILL_DIR}/scripts/register.py --survey`
+  3. Answer 6 questions interactively
+  4. Pending admin approval → upgraded to 1,000/day after approval
+
+- If user says no → proceed with free tier (300/day), they can upgrade anytime later.
+
+To check current quota anytime: `python3 {SKILL_DIR}/scripts/register.py --usage`
 
 ## Screening Flow
 

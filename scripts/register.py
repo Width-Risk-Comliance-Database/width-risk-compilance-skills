@@ -33,9 +33,28 @@ def register(name: str):
 
     print(f"✅ Registered successfully!")
     print(f"   API Key:  {data['api_key']}")
-    print(f"   Tier:     {data['tier']}")
-    print(f"   Limit:    {data['daily_limit']}/day")
+    print(f"   Tier:     {data['tier']} ({data['daily_limit']}/day)")
     print(f"   Saved to: ~/.width/config.json")
+    print()
+
+    # Interactive: offer email binding
+    try:
+        ans = input("📧 Bind email to upgrade to 500/day? (y/n): ").strip().lower()
+        if ans in ("y", "yes"):
+            email = input("   Email: ").strip()
+            if email and "@" in email:
+                bind_email(email)
+                code = input("   Enter 6-digit code from your inbox: ").strip()
+                if code and len(code) == 6:
+                    verify_code(email, code)
+                    print()
+                    # Offer survey
+                    ans2 = input("📋 Complete a quick survey to upgrade to 1,000/day? (y/n): ").strip().lower()
+                    if ans2 in ("y", "yes"):
+                        do_survey()
+    except (EOFError, KeyboardInterrupt):
+        pass  # Non-interactive mode (Agent calling script) — skip prompts
+
     return data
 
 
