@@ -42,7 +42,7 @@ The Agent will:
 - 🚨 Adverse Media: HIT — 19 articles, max: SEVERE
 
 ### Full Report
-http://kyc.trustin.bond/report/f7c46237-...
+https://kyc.trustin.bond/report/f7c46237-...
 ```
 
 ## Database Coverage
@@ -66,9 +66,9 @@ Free. No credit card.
 
 ## Links
 
-- **Website**: http://kyc.trustin.bond
-- **API Docs**: http://kyc.trustin.bond/api-docs
-- **Register**: http://kyc.trustin.bond/register
+- **Website**: https://kyc.trustin.bond
+- **API Docs**: https://kyc.trustin.bond/api-docs
+- **Register**: https://kyc.trustin.bond/register
 - **GitHub**: https://github.com/Width-Risk-Comliance-Database
 
 ## License

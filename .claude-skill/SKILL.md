@@ -6,8 +6,8 @@ metadata:
   requires:
     python: ">=3.10"
     pip: ["requests"]
-  api: "http://kyc.trustin.bond"
-  docs: "http://kyc.trustin.bond/api-docs"
+  api: "https://kyc.trustin.bond"
+  docs: "https://kyc.trustin.bond/api-docs"
   github: "https://github.com/Width-Risk-Comliance-Database/width-risk-compilance-skills"
 ---
 

@@ -102,7 +102,7 @@ Format your response as a clear screening report:
 
 ## API Reference
 
-Base URL: `http://kyc.trustin.bond` (or configured endpoint)
+Base URL: `https://kyc.trustin.bond` (or configured endpoint)
 
 | Endpoint | Method | Auth | Description |
 |---|---|---|---|
