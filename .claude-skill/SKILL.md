@@ -1,103 +1,94 @@
 ---
 name: width-risk-compliance
-version: 1.1.0
-description: "Screen any person or company against Width Risk & Compliance Database — sanctions, PEP, criminal records, adverse media. Asia's Dow Jones for AI Agents. Use when user asks to check/screen/investigate/KYC a person, company, or address."
-metadata:
-  requires:
-    python: ">=3.10"
-    pip: ["requests"]
-  api: "https://kyc.trustin.bond"
-  docs: "https://kyc.trustin.bond/api-docs"
-  github: "https://github.com/Width-Risk-Comliance-Database/width-risk-compilance-skills"
+version: 1.3.0
+description: "Screen any person or company against Width Risk & Compliance Database — sanctions, PEP, criminal records, adverse media. Use when user asks to check/screen/investigate/KYC a person, company, or address."
 ---
 
 # Width Risk & Compliance Database
 
 You are a KYC/AML compliance screening agent. When a user asks to check, screen, investigate, or do KYC on any person or company, use this skill.
 
-## Setup (Auto — First Use)
+**You call the API directly using WebFetch or Bash curl. No scripts or packages needed.**
 
-1. Check if `~/.width/config.json` exists
-2. If NO → auto-register by running: `python3 {SKILL_DIR}/scripts/register.py --name "Agent Name"`
-3. This saves the API key to `~/.width/config.json` (300 calls/day free)
+## Setup (First Use)
 
-`{SKILL_DIR}` = the directory containing this SKILL.md.
+Check if `~/.width/key` exists. If not, register:
 
-### Upgrade Quota (Ask the User)
+```bash
+curl -s -X POST https://kyc.trustin.bond/v1/register \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Claude Code Agent"}' > /tmp/width_reg.json
+cat /tmp/width_reg.json
+mkdir -p ~/.width
+cat /tmp/width_reg.json | python3 -c "import sys,json; print(json.load(sys.stdin)['api_key'])" > ~/.width/key
+```
 
-After first registration, **ask the user** if they want to upgrade:
+Read the key: `cat ~/.width/key`
 
-**"I've registered with Width (300 calls/day free). Would you like to bind your email to upgrade to 500/day? Or complete a short survey for 1,000/day?"**
+After registration, **ask the user**: "I registered with Width (300 calls/day free). Want to bind your email for 500/day?"
 
-- If user wants email binding:
-  1. Ask for their email
-  2. Run: `python3 {SKILL_DIR}/scripts/register.py --bind-email USER_EMAIL`
-  3. Tell user to check inbox for 6-digit code
-  4. Run: `python3 {SKILL_DIR}/scripts/register.py --verify-code CODE --email USER_EMAIL`
-  5. Upgraded to 500/day ✅
+If yes:
+1. `curl -s -X POST https://kyc.trustin.bond/v1/account/send-code -H "X-API-Key: $(cat ~/.width/key)" -H "Content-Type: application/json" -d '{"email": "USER_EMAIL"}'`
+2. User checks inbox for 6-digit code
+3. `curl -s -X POST https://kyc.trustin.bond/v1/account/verify-code -H "X-API-Key: $(cat ~/.width/key)" -H "Content-Type: application/json" -d '{"email": "USER_EMAIL", "code": "CODE"}'`
 
-- If user wants survey (requires email first):
-  1. Complete email binding first
-  2. Run: `python3 {SKILL_DIR}/scripts/register.py --survey`
-  3. Answer 6 questions interactively
-  4. Pending admin approval → upgraded to 1,000/day after approval
-
-- If user says no → proceed with free tier (300/day), they can upgrade anytime later.
-
-To check current quota anytime: `python3 {SKILL_DIR}/scripts/register.py --usage`
-
-## Screening Flow
+## Screening
 
 ### Step 1: Parse User Intent
 
 Extract from the user's request:
-
-| Field | Required | Example |
-|---|---|---|
-| **name** | Yes | "赵长鹏", "Changpeng Zhao", "MetaComp" |
-| **aliases** | No | "CZ", "Leon Li", other known names |
-| **country** | No | CN, SG, TH, HK, US (ISO code) |
-| **industry** | No | crypto, banking, real estate |
-| **context** | No | "Founder of Binance", "CEO of MetaComp" |
-
-**Smart alias expansion:**
-- Chinese names → add English romanization + known English name
-- Famous people → add commonly known aliases
-- "CZ" → aliases: ["赵长鹏", "Changpeng Zhao"]
-- "他信" → aliases: ["Thaksin", "Thaksin Shinawatra", "ทักษิณ ชินวัตร"]
+- **name** (required): "赵长鹏", "CZ", "Thaksin Shinawatra"
+- **aliases**: other known names, always add English + Chinese variants for famous people
+- **country**: ISO code (CN, SG, TH, HK, US)
+- **industry**: crypto, banking, etc.
+- **context**: "Founder of Binance", role/company
 
 ### Step 2: Call Width API
 
 ```bash
-python3 {SKILL_DIR}/scripts/screen.py \
-  --name "赵长鹏" \
-  --aliases "CZ,Changpeng Zhao" \
-  --country CN \
-  --industry crypto
+KEY=$(cat ~/.width/key)
+
+# Submit screening
+TASK=$(curl -s -X POST https://kyc.trustin.bond/v1/screening \
+  -H "X-API-Key: $KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "赵长鹏", "aliases": ["CZ", "Changpeng Zhao"], "country": "CN", "industry": "crypto"}')
+TASK_ID=$(echo $TASK | python3 -c "import sys,json; print(json.load(sys.stdin)['id'])")
+
+# Poll (every 2s until completed, usually ~2-5s)
+sleep 3
+curl -s "https://kyc.trustin.bond/v1/screening/$TASK_ID" -H "X-API-Key: $KEY"
 ```
 
-Returns: decision (REJECT/EDD/APPROVE), risk level, hit/clear per category, and a **report URL** for full details.
+Response (summarized — no full details, those are behind the report link):
+```json
+{
+  "decision": "REJECT",
+  "risk_level": "severe",
+  "sanctions": {"hit": false},
+  "convicted": {"hit": true, "trigger_count": 1},
+  "adverse_media": {"hit": true, "trigger_count": 1, "article_count": 19, "max_severity": "SEVERE"},
+  "decision_reasons": ["CONVICTED: criminal conviction on record", "..."],
+  "report_url": "https://kyc.trustin.bond/report/f7c46237-..."
+}
+```
 
 ### Step 3: Search Real-Time News (YOU do this)
 
-The Width API checks databases. For **live adverse media**, search the web yourself:
+Width API provides database checks. For live news, **search the web yourself**:
 
-**Search queries:**
 1. `"{name}" fraud OR scandal OR investigation OR arrest`
-2. `"{name}" 诈骗 OR 暴雷 OR 调查 OR 争议` (if Chinese)
-3. `"{company}" collapse OR hack OR fraud` (if context mentions a company)
-4. `"{name}" "conflict of interest" OR corruption OR sanctions`
+2. `"{name}" 诈骗 OR 暴雷 OR 调查 OR 争议` (Chinese names)
+3. `"{company}" collapse OR hack OR fraud` (if context mentions company)
 
-**Assess each article:**
-- Severity: SEVERE (arrest) / HIGH (fraud/hack) / MEDIUM (controversy) / LOW
-- Recency: <6 months = critical, 1-2 years = relevant, 3+ years = historical
+Assess severity: SEVERE (arrest/conviction) / HIGH (fraud/hack) / MEDIUM (controversy) / LOW
 
 ### Step 4: Present Report
 
 ```markdown
 ## Width Risk Screening — {Name}
 
-**{DECISION}** | Risk: {LEVEL}
+**Decision: {REJECT/EDD/APPROVE}** | Risk: {LEVEL}
 
 ### Database Checks
 - Sanctions: ✅ Clear / 🚨 HIT (N triggers)
@@ -105,59 +96,39 @@ The Width API checks databases. For **live adverse media**, search the web yours
 - Criminal: ✅ Clear / 🚨 HIT
 - Adverse Media: ✅ Clear / 🚨 HIT (N articles)
 
-### Real-Time News (your search)
-[Your findings here]
+### Real-Time News
+[Your web search findings]
 
 ### Full Report
-[report_url from API]
+{report_url}
 
 ---
-*Width Risk & Compliance Database — kyc.trustin.bond*
+*Screened via Width Risk & Compliance Database*
 ```
 
-## Available Commands
+## Quick Reference
 
-```bash
-# Register (first time)
-python3 {SKILL_DIR}/scripts/register.py
+| Action | Command |
+|---|---|
+| Register | `POST /v1/register {"name": "..."}` |
+| Screen | `POST /v1/screening {"name": "...", "aliases": [...], "country": "XX"}` |
+| Poll result | `GET /v1/screening/{task_id}` |
+| Search DB | `GET /v1/search?q=name&limit=5` |
+| Entity detail | `GET /v1/entity/{id}` |
+| Check usage | `GET /v1/account/usage` |
+| Send code | `POST /v1/account/send-code {"email": "..."}` |
+| Verify code | `POST /v1/account/verify-code {"email": "...", "code": "..."}` |
 
-# Screen a person/company
-python3 {SKILL_DIR}/scripts/screen.py --name "NAME" --aliases "A,B" --country XX
-
-# Screen (raw JSON output)
-python3 {SKILL_DIR}/scripts/screen.py --name "NAME" --json
-
-# Check usage/quota
-python3 {SKILL_DIR}/scripts/register.py --usage
-
-# Upgrade: bind email → 500/day
-python3 {SKILL_DIR}/scripts/register.py --bind-email user@email.com
-python3 {SKILL_DIR}/scripts/register.py --verify-code 123456
-
-# Upgrade: survey → 1000/day
-python3 {SKILL_DIR}/scripts/register.py --survey
-
-# Check for updates
-python3 {SKILL_DIR}/scripts/register.py --check-update
-
-# Auto-update
-python3 {SKILL_DIR}/scripts/register.py --update
-```
+Base URL: `https://kyc.trustin.bond`
+Auth header: `X-API-Key: {key from ~/.width/key}`
 
 ## Decision Hierarchy
 
-| Decision | Meaning | Action |
-|---|---|---|
-| **REJECT** | Sanctioned or convicted | Must block |
-| **MANDATORY_EDD** | PEP | Enhanced due diligence required |
-| **EDD** | Significant adverse findings | Deep review needed |
-| **ENHANCED_REVIEW** | Moderate adverse findings | Extra checks |
-| **APPROVE** | No risk indicators | Safe to proceed |
+REJECT → MANDATORY_EDD → EDD → ENHANCED_REVIEW → APPROVE
 
-## News Sources (for your web search)
+## News Sources
 
-**Global:** Reuters, Bloomberg, BBC, CNN, Al Jazeera, ICIJ
-**China:** 财新, 澎湃, 第一财经, 界面新闻, 证券时报
-**HK:** SCMP, HKFP | **SG:** Straits Times, CNA
-**TH:** Bangkok Post | **JP:** Nikkei Asia | **KR:** Korea Herald
-**Crypto:** CoinDesk, The Block, CoinTelegraph, Decrypt
+**Global:** Reuters, Bloomberg, BBC, CNN, ICIJ
+**China:** 财新, 澎湃, 第一财经, 界面新闻
+**HK:** SCMP | **SG:** Straits Times, CNA
+**Crypto:** CoinDesk, The Block, CoinTelegraph
