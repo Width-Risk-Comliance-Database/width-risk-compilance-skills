@@ -75,13 +75,36 @@ Response (summarized — no full details, those are behind the report link):
 
 ### Step 3: Search Real-Time News (YOU do this)
 
-Width API provides database checks. For live news, **search the web yourself**:
+Width API provides database checks. For live news, **search the web yourself in the person's local language**:
 
-1. `"{name}" fraud OR scandal OR investigation OR arrest`
-2. `"{name}" 诈骗 OR 暴雷 OR 调查 OR 争议` (Chinese names)
-3. `"{company}" collapse OR hack OR fraud` (if context mentions company)
+**Always search in English:**
+- `"{name}" fraud OR scandal OR investigation OR arrest OR sanctions`
 
-Assess severity: SEVERE (arrest/conviction) / HIGH (fraud/hack) / MEDIUM (controversy) / LOW
+**Then search in their local language based on country:**
+
+| Country | Search Terms | Priority Media |
+|---|---|---|
+| 🇨🇳 CN | `"{名字}" 诈骗 OR 暴雷 OR 调查 OR 争议 OR 制裁 OR 洗钱 OR 跑路` | 财新 Caixin, 澎湃 The Paper, 第一财经, 界面新闻, 证券时报 |
+| 🇭🇰 HK | Same as CN + `"{name}" HKMA OR SFC OR ICAC` | SCMP, HKFP, The Standard |
+| 🇸🇬 SG | `"{name}" MAS OR fraud OR charged` | Straits Times, CNA, Business Times |
+| 🇹🇭 TH | `"{ชื่อ}" ฉ้อโกง OR ฟอกเงิน OR สอบสวน OR อายัด OR ป.ป.ง.` | Bangkok Post, The Nation, Thai PBS, กรุงเทพธุรกิจ |
+| 🇮🇩 ID | `"{nama}" penipuan OR korupsi OR pencucian uang OR OJK OR PPATK` | Kompas, Tempo, Detik, Bisnis Indonesia |
+| 🇻🇳 VN | `"{tên}" lừa đảo OR rửa tiền OR điều tra OR vi phạm` | VnExpress, Thanh Niên, Tuổi Trẻ |
+| 🇵🇭 PH | `"{name}" fraud OR AMLC OR Sandiganbayan OR graft` | Philippine Star, Inquirer, Rappler |
+| 🇲🇾 MY | `"{nama}" penipuan OR rasuah OR BNM OR SC Malaysia` | The Star, New Straits Times, Malay Mail |
+| 🇯🇵 JP | `"{名前}" 詐欺 OR 逮捕 OR 行政処分 OR マネーロンダリング OR 金融庁` | 日経 Nikkei, Japan Times, NHK, 朝日新聞 |
+| 🇰🇷 KR | `"{이름}" 사기 OR 체포 OR 수사 OR 제재 OR 금감원` | Korea Herald, 매일경제, 조선일보, 한국경제 |
+| 🇦🇪 AE | `"{name}" DFSA OR ADGM OR fraud` | The National, Arabian Business, Gulf News |
+| 🇮🇳 IN | `"{name}" SEBI OR ED OR RBI OR fraud OR arrest` | Economic Times, LiveMint, NDTV |
+
+**If context mentions a company, also search:**
+- `"{company}" collapse OR hack OR fraud OR depeg OR bankruptcy`
+
+**Assess each finding:**
+- **SEVERE**: arrest, conviction, prison sentence
+- **HIGH**: fraud charges, hack/exploit, investigation, sanctions
+- **MEDIUM**: regulatory fine, controversy, conflict of interest
+- **LOW**: minor dispute, historical (3+ years old)
 
 ### Step 4: Present Report
 
