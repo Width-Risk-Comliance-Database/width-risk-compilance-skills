@@ -1,113 +1,75 @@
-# Width Risk & Compliance Database — AI Agent Skill
+# Width Risk & Compliance Database
 
-Screen any person or company against **1.2M+ entities** — sanctions, PEP, criminal records, adverse media — in under 2 seconds. Then use your Agent's web search to find real-time news.
+Screen any person or company against **120W+ entities** — sanctions, PEP, criminal records, adverse media — powered by Asia's most comprehensive compliance database.
 
-## Quick Start
+## Install
 
-### 1. Install
-
-**Claude Code:**
-```bash
-# Copy to your skills directory
-cp -r width-risk-compliance-skills ~/.claude/skills/width-risk-compliance
-```
-
-**Or clone anywhere:**
 ```bash
 git clone https://github.com/Width-Risk-Comliance-Database/width-risk-compilance-skills.git
+cd width-risk-compilance-skills
+./install.sh
 ```
 
-### 2. Register (Auto on First Use)
+## Usage
 
-```bash
-cd width-risk-compliance-skills
-python3 scripts/register.py
-# → ✅ Registered! API Key: e6602814-... (300/day free)
+Just tell your Agent what you need:
+
+```
+"帮我查一下赵长鹏"
+"Screen Thaksin Shinawatra"
+"Check if 杜均 is safe to onboard"
+"Investigate MetaComp, a Singapore crypto company"
+"这个人能不能开户：李林，火币创始人"
 ```
 
-### 3. Screen Someone
+The Agent will:
+1. Parse your intent (name, aliases, country, industry)
+2. Call Width API for database checks (sanctions, PEP, criminal, adverse media)
+3. Search the web for real-time news
+4. Present a structured report with a link to full details
 
-```bash
-python3 scripts/screen.py --name "赵长鹏" --aliases "CZ,Changpeng Zhao" --country CN
-```
+## What You Get
 
-Output:
 ```
 ## Width Risk Screening — 赵长鹏
 
-**🚫 Decision: REJECT** | Risk: SEVERE
+🚫 Decision: REJECT | Risk: SEVERE
 
 ### Database Checks
 - ✅ Sanctions: Clear
 - ✅ PEP: Clear
-- 🚨 **Criminal Records: HIT**
-  - Criminal conviction on record
-- 🚨 **Adverse Media: HIT**
-  - 19 articles, max severity: SEVERE
+- 🚨 Criminal Records: HIT (1 triggers)
+- 🚨 Adverse Media: HIT — 19 articles, max: SEVERE
 
-### Decision Reasoning
-- CONVICTED: 'Changpeng Zhao' has a criminal conviction on record
-- ADVERSE MEDIA: 19 article(s), max_severity=SEVERE
+### Full Report
+http://kyc.trustin.bond/report/f7c46237-...
 ```
-
-## Upgrade Your Quota
-
-| Tier | Limit | How |
-|---|---|---|
-| Free | 300/day | Auto on register |
-| Email | 500/day | `python3 scripts/register.py --bind-email you@email.com` |
-| Survey | 1,000/day | `python3 scripts/register.py --survey` |
-
-```bash
-# Check your usage
-python3 scripts/register.py --usage
-
-# Bind email (sends verification code)
-python3 scripts/register.py --bind-email you@email.com
-python3 scripts/register.py --verify-code 123456
-
-# Complete survey
-python3 scripts/register.py --survey
-```
-
-## How It Works
-
-```
-You (Agent) ─── "screen 杜均" ──→ Skill parses intent
-                                    │
-                                    ├─ Extract: name, aliases, country, industry, context
-                                    │
-                                    ├─ Call Width API (/v1/screening)
-                                    │   └─ Returns: sanctions, PEP, criminal, adverse media
-                                    │
-                                    └─ Agent searches web for real-time news
-                                        └─ Using news source list from SKILL.md
-                                    │
-                                    └─ Combined report presented to user
-```
-
-**Width API handles:** Database screening (1.2M entities, 420K sanctions, 856K PEP)
-**Your Agent handles:** Real-time news search (using its own WebSearch capability)
 
 ## Database Coverage
 
 - **120W+ entities** — persons, companies, organizations, vessels
-- **42W+ sanctions entries** — OFAC, EU, UN, UK + 116 more lists
+- **42W+ sanctions entries** — OFAC, EU, UN, UK + 116 lists
 - **85W+ PEP records** — 255 jurisdictions worldwide
 - **15W+ criminal/wanted** — INTERPOL, country-level wanted lists
-- **3,000+ Chinese regulatory penalties** — CSRC, PBOC, NFRA, SAFE, SAMR
-- **Asia-deep coverage** — CN, HK, SG, TH, JP, KR, PH, ID, VN, MY, AE
+- **3,000+ regulatory penalties** — China CSRC, PBOC, NFRA, SAFE, SAMR
+- **Asia-deep** — CN, HK, SG, TH, JP, KR, PH, ID, VN, MY, AE
 
-## Files
+## Pricing
 
-```
-SKILL.md              — Skill definition (how your Agent uses this)
-scripts/
-  config.py           — API key storage (~/.width/config.json)
-  register.py         — Register, bind email, survey, check usage
-  screen.py           — Submit screening, poll result, format report
-README.md             — This file
-```
+Free. No credit card.
+
+| Tier | Limit | How |
+|---|---|---|
+| Free | 300/day | Auto on first use |
+| Email | 500/day | Verify your email |
+| Survey | 1,000/day | Answer 6 questions |
+
+## Links
+
+- **Website**: http://kyc.trustin.bond
+- **API Docs**: http://kyc.trustin.bond/api-docs
+- **Register**: http://kyc.trustin.bond/register
+- **GitHub**: https://github.com/Width-Risk-Comliance-Database
 
 ## License
 
