@@ -5,7 +5,9 @@ from pathlib import Path
 
 CONFIG_DIR = Path.home() / ".width"
 CONFIG_FILE = CONFIG_DIR / "config.json"
-DEFAULT_API_URL = "http://129.226.145.126:8899"
+DEFAULT_API_URL = "http://kyc.trustin.bond"
+SKILL_VERSION = "1.1.0"
+VERSION_CHECK_URL = "https://raw.githubusercontent.com/Width-Risk-Comliance-Database/width-risk-compilance-skills/main/VERSION"
 
 
 def get_config() -> dict:

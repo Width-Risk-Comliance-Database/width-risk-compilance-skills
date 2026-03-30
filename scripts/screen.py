@@ -59,9 +59,9 @@ def screen(name: str, aliases: list = None, country: str = None,
         r = requests.get(f"{url}/v1/screening/{task_id}", headers=headers, timeout=10)
         data = r.json()
 
-        if data["status"] == "completed":
-            return data["result"]
-        elif data["status"] == "failed":
+        if data.get("status") == "completed" or data.get("decision"):
+            return data  # API returns flat summary with decision/report_url
+        elif data.get("status") == "failed":
             print(f"Error: Screening failed — {data.get('error', 'unknown')}", file=sys.stderr)
             sys.exit(1)
 
@@ -72,9 +72,10 @@ def screen(name: str, aliases: list = None, country: str = None,
 
 
 def format_report(result: dict, name: str) -> str:
-    """Format screening result as readable report."""
+    """Format screening result as readable report (works with summarized API response)."""
     decision = result.get("decision", "UNKNOWN")
     risk = result.get("risk_level", "unknown").upper()
+    report_url = result.get("report_url", "")
 
     icons = {"REJECT": "🚫", "MANDATORY_EDD": "⚠️", "EDD": "⚠️", "ENHANCED_REVIEW": "🔍", "APPROVE": "✅"}
 
@@ -88,20 +89,12 @@ def format_report(result: dict, name: str) -> str:
     for cat_name, cat_key in [("Sanctions", "sanctions"), ("PEP", "pep"), ("Criminal Records", "convicted"), ("Adverse Media", "adverse_media")]:
         c = result.get(cat_key, {})
         if c.get("hit"):
-            lines.append(f"- 🚨 **{cat_name}: HIT**")
-            for t in c.get("triggers", [])[:3]:
-                if cat_key == "adverse_media":
-                    lines.append(f"  - {t.get('count', 0)} articles, max severity: {t.get('max_severity', '?')}")
-                elif cat_key == "pep":
-                    for d in t.get("detail", [])[:2]:
-                        if isinstance(d, dict):
-                            lines.append(f"  - {d.get('position', '?')} ({d.get('jurisdiction', '?')})")
-                elif cat_key == "sanctions":
-                    for d in t.get("detail", [])[:3]:
-                        if isinstance(d, dict):
-                            lines.append(f"  - {d.get('list', '?')}")
-                elif cat_key == "convicted":
-                    lines.append(f"  - Criminal conviction on record")
+            extra = ""
+            if c.get("trigger_count"):
+                extra += f" ({c['trigger_count']} triggers)"
+            if c.get("article_count"):
+                extra += f" — {c['article_count']} articles, max: {c.get('max_severity', '?')}"
+            lines.append(f"- 🚨 **{cat_name}: HIT**{extra}")
         else:
             lines.append(f"- ✅ {cat_name}: Clear")
 
@@ -110,9 +103,14 @@ def format_report(result: dict, name: str) -> str:
     for reason in result.get("decision_reasons", [])[:5]:
         lines.append(f"- {reason}")
 
+    if report_url:
+        lines.append(f"")
+        lines.append(f"### Full Report")
+        lines.append(f"View complete details: {report_url}")
+
     lines.append(f"")
     lines.append(f"---")
-    lines.append(f"*Screened via Width Risk & Compliance Database — width.info*")
+    lines.append(f"*Screened via Width Risk & Compliance Database — kyc.trustin.bond*")
 
     return "\n".join(lines)
 

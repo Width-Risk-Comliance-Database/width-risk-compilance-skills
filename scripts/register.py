@@ -7,13 +7,17 @@ Usage:
     python3 scripts/register.py --verify-code 123456      # Verify and upgrade to 500/day
     python3 scripts/register.py --survey                  # Complete survey for 1000/day
     python3 scripts/register.py --usage                   # Check current usage
+    python3 scripts/register.py --check-update            # Check for skill updates
+    python3 scripts/register.py --update                  # Auto-update skill
 """
 import argparse
 import json
+import os
+import subprocess
 import sys
 import requests
 
-from config import get_config, save_config, get_api_key, get_api_url
+from config import get_config, save_config, get_api_key, get_api_url, SKILL_VERSION, VERSION_CHECK_URL
 
 
 def register(name: str):
@@ -142,6 +146,48 @@ def check_usage():
     print(f"  Status:    {data['status']}")
 
 
+def check_update():
+    """Check if a newer version of the skill is available."""
+    try:
+        r = requests.get(VERSION_CHECK_URL, timeout=5)
+        remote = r.text.strip()
+        print(f"  Current: {SKILL_VERSION}")
+        print(f"  Latest:  {remote}")
+        if remote != SKILL_VERSION:
+            print(f"  ⬆️  Update available! Run: python3 scripts/register.py --update")
+            return True
+        else:
+            print(f"  ✅ You're on the latest version.")
+            return False
+    except Exception as e:
+        print(f"  Could not check for updates: {e}")
+        return False
+
+
+def auto_update():
+    """Auto-update skill via git pull."""
+    skill_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    git_dir = os.path.join(skill_dir, ".git")
+
+    if not os.path.exists(git_dir):
+        print("  Not a git repo. Please update manually:")
+        print("  git clone https://github.com/Width-Risk-Comliance-Database/width-risk-compilance-skills.git")
+        return
+
+    print(f"  Updating from GitHub...")
+    result = subprocess.run(["git", "pull"], cwd=skill_dir, capture_output=True, text=True)
+    if result.returncode == 0:
+        print(f"  ✅ Updated! {result.stdout.strip()}")
+        # Re-check version
+        try:
+            new_ver = open(os.path.join(skill_dir, "VERSION")).read().strip()
+            print(f"  Now on version: {new_ver}")
+        except:
+            pass
+    else:
+        print(f"  ❌ Update failed: {result.stderr.strip()}")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Width Risk & Compliance — API Key Management")
     parser.add_argument("--name", default="Claude Code Agent", help="Agent name for registration")
@@ -150,9 +196,18 @@ if __name__ == "__main__":
     parser.add_argument("--email", help="Email for verify-code (reads from config if bound)")
     parser.add_argument("--survey", action="store_true", help="Complete survey for 1000/day")
     parser.add_argument("--usage", action="store_true", help="Check current usage")
+    parser.add_argument("--check-update", action="store_true", help="Check for skill updates")
+    parser.add_argument("--update", action="store_true", help="Auto-update skill from GitHub")
+    parser.add_argument("--version", action="store_true", help="Show current version")
     args = parser.parse_args()
 
-    if args.usage:
+    if args.version:
+        print(f"Width Risk & Compliance Skill v{SKILL_VERSION}")
+    elif args.check_update:
+        check_update()
+    elif args.update:
+        auto_update()
+    elif args.usage:
         check_usage()
     elif args.bind_email:
         bind_email(args.bind_email)

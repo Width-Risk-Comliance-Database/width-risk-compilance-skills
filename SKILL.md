@@ -97,12 +97,12 @@ Format your response as a clear screening report:
 [1-2 paragraph summary of key findings and recommendation]
 
 ---
-*Screened via Width Risk & Compliance Database — width.info*
+*Screened via Width Risk & Compliance Database — kyc.trustin.bond*
 ```
 
 ## API Reference
 
-Base URL: `https://width.info` (or configured endpoint)
+Base URL: `http://kyc.trustin.bond` (or configured endpoint)
 
 | Endpoint | Method | Auth | Description |
 |---|---|---|---|
