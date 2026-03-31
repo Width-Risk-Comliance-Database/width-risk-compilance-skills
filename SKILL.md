@@ -1,6 +1,6 @@
 ---
 name: width-risk-compliance
-version: 1.4.0
+version: 1.5.0
 description: "Screen any person or company against Width Risk & Compliance Database — sanctions, PEP, criminal records, adverse media. Use when user asks to check/screen/investigate/KYC a person, company, or address."
 ---
 
@@ -73,7 +73,10 @@ Response (summarized — no full details, those are behind the report link):
 }
 ```
 
-### Step 3: Search Real-Time News (YOU do this)
+### Step 3: Search Real-Time News (MANDATORY — you MUST do this)
+
+**⚠️ This step is NOT optional. You MUST search even if the API returned APPROVE / all clear.**
+The Width database does not cover every person — especially local fraudsters, ICO scammers, and recent cases. Your web search is the safety net. Skipping this step can miss critical risks.
 
 Width API provides database checks. For live news, **search the web yourself in the person's local language**:
 
