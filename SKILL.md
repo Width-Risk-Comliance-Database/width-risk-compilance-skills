@@ -1,6 +1,6 @@
 ---
 name: width-risk-compliance
-version: 1.3.0
+version: 1.4.0
 description: "Screen any person or company against Width Risk & Compliance Database — sanctions, PEP, criminal records, adverse media. Use when user asks to check/screen/investigate/KYC a person, company, or address."
 ---
 
